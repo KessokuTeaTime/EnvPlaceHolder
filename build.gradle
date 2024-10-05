@@ -1,19 +1,50 @@
 plugins {
-    id 'java'
+    id "java"
+    id "maven-publish"
 }
 
 group = 'band.kessoku.fake.env'
-version = '1.0-SNAPSHOT'
+version = '0.1.0'
+
+java {
+    toolchain.languageVersion.set(JavaLanguageVersion.of(8))
+
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+
+    withSourcesJar()
+}
+
+tasks.withType(JavaCompile).configureEach {
+    it.options.release = 8
+    it.options.encoding = "UTF-8"
+}
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    testImplementation platform('org.junit:junit-bom:5.10.0')
-    testImplementation 'org.junit.jupiter:junit-jupiter'
+
 }
 
-test {
-    useJUnitPlatform()
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifactId = base.archivesName.get()
+            from components.java
+        }
+    }
+
+    repositories {
+        maven {
+            name = "EnvPlaceHolder"
+            url = "https://maven.cloudsmith.io/kessokuteatime/envplaceholder/"
+
+            credentials {
+                username = "tex-true"
+                password = System.getenv("CLOUDSMITH_MAVEN_TOKEN")
+            }
+        }
+    }
 }
